@@ -12,7 +12,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 @Repository
 public class NeoLookupRepositoryImpl implements NeoLookupRepository{
 
-    private static final String NEO_LOOKUP_ENDPOINT = ApiClientConfig.BASE_URL + "neo";
+    private static final String NEO_LOOKUP_ENDPOINT = ApiClientConfig.BASE_URL + "neo/";
     private final RestTemplate restTemplate;
 
     @Autowired
