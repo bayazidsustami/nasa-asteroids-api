@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 @Data
-public class OrbitClass{
+public class OrbitDataResponseClass {
 
 	@JsonProperty("orbit_class_description")
 	private String orbitClassDescription;

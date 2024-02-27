@@ -4,10 +4,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 @Data
-public class OrbitalData{
+public class OrbitalDataResponse {
 
 	@JsonProperty("orbital_data")
-	private OrbitalData orbitalData;
+	private OrbitalDataResponse orbitalDataResponse;
 
 	@JsonProperty("inclination")
 	private String inclination;
@@ -25,7 +25,7 @@ public class OrbitalData{
 	private String perihelionArgument;
 
 	@JsonProperty("orbit_class")
-	private OrbitClass orbitClass;
+	private OrbitDataResponseClass orbitDataResponseClass;
 
 	@JsonProperty("last_observation_date")
 	private String lastObservationDate;
