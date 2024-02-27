@@ -6,6 +6,7 @@ import com.example.asteroids.nasa.client.response.neofeed.EstimatedDiameter;
 import com.example.asteroids.nasa.client.response.neofeed.NeoFeedResponse;
 import com.example.asteroids.nasa.models.AsteroidResponse;
 import com.example.asteroids.nasa.models.CloseApproachData;
+import com.example.asteroids.nasa.models.DetailAsteroidResponse;
 import com.example.asteroids.nasa.models.MinMaxProperty;
 
 import java.math.BigDecimal;
@@ -36,6 +37,18 @@ public class AsteroidMapper {
         });
 
         return asteroidResponseList;
+    }
+
+    public DetailAsteroidResponse mapAsteroidDetailToResponse(AsteroidObject asteroidObject) {
+        EstimatedDiameter estimatedDiameter = asteroidObject.getEstimatedDiameter();
+        List<CloseApproachDataItem> closeApproachData = asteroidObject.getCloseApproachData();
+        return DetailAsteroidResponse.builder()
+                .id(asteroidObject.getId())
+                .asteroidName(asteroidObject.getName())
+                .isHazardous(asteroidObject.isPotentiallyHazardousAsteroid())
+                .estimatedDiameter(setEstimatedDiameter(estimatedDiameter))
+                .closeApproachDataList(closeApproachData.stream().map(this::setCloseApproachData).toList())
+                .build();
     }
 
     private List<MinMaxProperty> setEstimatedDiameter(EstimatedDiameter estimatedDiameter) {
