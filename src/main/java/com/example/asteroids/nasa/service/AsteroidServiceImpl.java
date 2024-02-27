@@ -3,6 +3,7 @@ package com.example.asteroids.nasa.service;
 import com.example.asteroids.nasa.client.response.neofeed.AsteroidObject;
 import com.example.asteroids.nasa.client.response.neofeed.NeoFeedResponse;
 import com.example.asteroids.nasa.models.AsteroidResponse;
+import com.example.asteroids.nasa.models.CloseApproachData;
 import com.example.asteroids.nasa.models.DetailAsteroidResponse;
 import com.example.asteroids.nasa.repository.neofeed.NeoFeedRepository;
 import com.example.asteroids.nasa.repository.neolookup.NeoLookupRepository;
@@ -13,9 +14,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -59,12 +64,18 @@ public class AsteroidServiceImpl implements AsteroidService{
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "should determine asteroidId");
         }
 
-        if (!(startDate.isBlank() && endDate.isBlank()) && isDateRangeValid(startDate, endDate)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "maximum range is 7 days");
+        AsteroidObject detailAsteroid = neoLookupRepository.getDetailAsteroid(asteroidId);
+        DetailAsteroidResponse detailAsteroidResponse = asteroidMapper.mapAsteroidDetailToResponse(detailAsteroid);
+
+        if (!startDate.isEmpty() && !endDate.isEmpty() && isDateRangeValid(startDate, endDate)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Maximum range is 7 days");
         }
 
-        AsteroidObject detailAsteroid = neoLookupRepository.getDetailAsteroid(asteroidId);
-        return asteroidMapper.mapAsteroidDetailToResponse(detailAsteroid);
+        if (!startDate.isEmpty() && !endDate.isEmpty()) {
+            sublistOnlyRangeDate(detailAsteroidResponse, startDate, endDate);
+        }
+
+        return detailAsteroidResponse;
     }
 
     private boolean isBlankOrEmpty(String value) {
@@ -89,5 +100,33 @@ public class AsteroidServiceImpl implements AsteroidService{
 
         long daysBetween = ChronoUnit.DAYS.between(startDate, endDate);
         return daysBetween > 7;
+    }
+
+    private void sublistOnlyRangeDate(
+            DetailAsteroidResponse detailAsteroidResponse,
+            String startDateStr,
+            String endDateStr
+    ) {
+        long startDate = convertToEpoch(startDateStr);
+        long endDate = convertToEpoch(endDateStr);
+
+        List<CloseApproachData> approachDataList = new ArrayList<>();
+        for (CloseApproachData closeApproachData : detailAsteroidResponse.getCloseApproachDataList()) {
+            if (closeApproachData.getEpochDate() >= startDate && closeApproachData.getEpochDate() <= endDate) {
+                approachDataList.add(closeApproachData);
+            }
+        }
+
+        detailAsteroidResponse.setCloseApproachDataList(approachDataList);
+    }
+
+    private static long convertToEpoch(String dateString) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        try {
+            Date date = sdf.parse(dateString);
+            return date.getTime();
+        } catch (ParseException e) {
+            return -1;
+        }
     }
 }
