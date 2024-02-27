@@ -4,10 +4,8 @@ import com.example.asteroids.nasa.client.response.neofeed.AsteroidObject;
 import com.example.asteroids.nasa.client.response.neofeed.CloseApproachDataItem;
 import com.example.asteroids.nasa.client.response.neofeed.EstimatedDiameter;
 import com.example.asteroids.nasa.client.response.neofeed.NeoFeedResponse;
-import com.example.asteroids.nasa.models.AsteroidResponse;
-import com.example.asteroids.nasa.models.CloseApproachData;
-import com.example.asteroids.nasa.models.DetailAsteroidResponse;
-import com.example.asteroids.nasa.models.MinMaxProperty;
+import com.example.asteroids.nasa.client.response.neolookup.OrbitalDataResponse;
+import com.example.asteroids.nasa.models.*;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -48,6 +46,18 @@ public class AsteroidMapper {
                 .isHazardous(asteroidObject.isPotentiallyHazardousAsteroid())
                 .estimatedDiameter(setEstimatedDiameter(estimatedDiameter))
                 .closeApproachDataList(closeApproachData.stream().map(this::setCloseApproachData).toList())
+                .orbitalData(setOrbitalData(asteroidObject.getOrbitalDataResponse()))
+                .build();
+    }
+
+    private OrbitalData setOrbitalData(OrbitalDataResponse orbitalDataResponse) {
+        return OrbitalData.builder()
+                .orbitId(orbitalDataResponse.getOrbitId())
+                .firstObservationDate(orbitalDataResponse.getFirstObservationDate())
+                .lastObservationDate(orbitalDataResponse.getLastObservationDate())
+                .orbitClassType(orbitalDataResponse.getOrbitDataResponseClass().getOrbitClassType())
+                .orbitClassRange(orbitalDataResponse.getOrbitDataResponseClass().getOrbitClassRange())
+                .orbitClassDescription(orbitalDataResponse.getOrbitDataResponseClass().getOrbitClassDescription())
                 .build();
     }
 
