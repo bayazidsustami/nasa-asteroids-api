@@ -4,6 +4,7 @@ import com.example.asteroids.nasa.client.response.neofeed.NeoFeedResponse;
 import com.example.asteroids.nasa.models.AsteroidResponse;
 import com.example.asteroids.nasa.repository.neofeed.NeoFeedRepository;
 import com.example.asteroids.nasa.service.mapper.AsteroidMapper;
+import com.example.asteroids.nasa.util.DistanceComparator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -43,7 +44,19 @@ public class AsteroidServiceImpl implements AsteroidService{
 
         NeoFeedResponse neoFeed = neoFeedRepository.getNeoFeed(startDate, endDate);
 
-        return asteroidMapper.mapListToResponses(neoFeed);
+        return sortItem(asteroidMapper.mapListToResponses(neoFeed));
+    }
+    
+    private List<AsteroidResponse> sortItem(List<AsteroidResponse> item) {
+        item.sort(new DistanceComparator());
+
+        List<AsteroidResponse> firstTenAsteroids;
+        if (item.size() >= 10) {
+            firstTenAsteroids = item.subList(0, 10);
+        } else {
+            firstTenAsteroids = item;
+        }
+        return firstTenAsteroids;
     }
 
     private boolean isDateRangeValid(String startDateStr, String endDateStr) {
