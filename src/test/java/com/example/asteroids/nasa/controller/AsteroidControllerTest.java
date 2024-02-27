@@ -2,6 +2,7 @@ package com.example.asteroids.nasa.controller;
 
 import com.example.asteroids.nasa.models.ApiResponse;
 import com.example.asteroids.nasa.models.AsteroidResponse;
+import com.example.asteroids.nasa.models.DetailAsteroidResponse;
 import com.example.asteroids.nasa.models.ErrorResponse;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -87,6 +88,68 @@ class AsteroidControllerTest {
             Assertions.assertNotNull(response);
             Assertions.assertEquals("OK", response.getStatus());
             Assertions.assertEquals(10, response.getData().size());
+        });
+    }
+
+    @Test
+    void testDetailAsteroidResponseWithEmptyRangeDate() throws Exception {
+        mockMvc.perform(
+                get("/api/asteroids/54427165")
+                        .queryParam("start_date", "")
+                        .queryParam("end_date", "")
+                        .accept(MediaType.APPLICATION_JSON)
+        ).andExpectAll(
+                status().isOk()
+        ).andExpectAll( result -> {
+            ApiResponse<DetailAsteroidResponse> response = objectMapper.readValue(
+                    result.getResponse().getContentAsString(),
+                    new TypeReference<>() {
+                    }
+            );
+            Assertions.assertNotNull(response.getData());
+            Assertions.assertEquals("OK", response.getStatus());
+            Assertions.assertTrue(response.getData().getCloseApproachDataList().size() > 2);
+        });
+    }
+
+    @Test
+    void testDetailAsteroidResponseWithExceedRangeDate() throws Exception {
+        mockMvc.perform(
+                get("/api/asteroids/54427165")
+                        .queryParam("start_date", "2024-02-15")
+                        .queryParam("end_date", "2024-02-27")
+                        .accept(MediaType.APPLICATION_JSON)
+        ).andExpectAll(
+                status().isBadRequest()
+        ).andExpectAll( result -> {
+            ErrorResponse response = objectMapper.readValue(
+                    result.getResponse().getContentAsString(),
+                    new TypeReference<>() {
+                    }
+            );
+            Assertions.assertNotNull(response);
+            Assertions.assertEquals("Maximum range is 7 days", response.getMessage());
+        });
+    }
+
+    @Test
+    void testDetailAsteroidResponseWithRangeDate() throws Exception {
+        mockMvc.perform(
+                get("/api/asteroids/54427165")
+                        .queryParam("start_date", "2024-02-15")
+                        .queryParam("end_date", "2024-02-22")
+                        .accept(MediaType.APPLICATION_JSON)
+        ).andExpectAll(
+                status().isOk()
+        ).andExpectAll( result -> {
+            ApiResponse<DetailAsteroidResponse> response = objectMapper.readValue(
+                    result.getResponse().getContentAsString(),
+                    new TypeReference<>() {
+                    }
+            );
+            Assertions.assertNotNull(response.getData());
+            Assertions.assertEquals("OK", response.getStatus());
+            Assertions.assertEquals(2, response.getData().getCloseApproachDataList().size());
         });
     }
 }
