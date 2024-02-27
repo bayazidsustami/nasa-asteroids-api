@@ -10,6 +10,8 @@ import java.util.Collections;
 @Configuration
 public class ApiClientConfig {
 
+    public static String BASE_URL = "https://api.nasa.gov/neo/rest/v1/";
+
     @Value("${nasa.api-key}")
     private String apiKey;
 
