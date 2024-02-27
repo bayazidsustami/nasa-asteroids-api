@@ -2,6 +2,7 @@ package com.example.asteroids.nasa.client.response.neofeed;
 
 import java.util.List;
 
+import com.example.asteroids.nasa.client.response.neolookup.OrbitalData;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
@@ -31,4 +32,7 @@ public class AsteroidObject{
 
 	@JsonProperty("close_approach_data")
 	private List<CloseApproachDataItem> closeApproachData;
+
+	@JsonProperty("orbital_data")
+	private OrbitalData orbitalData;
 }
