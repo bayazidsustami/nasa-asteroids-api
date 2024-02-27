@@ -34,7 +34,7 @@ public class AsteroidServiceImpl implements AsteroidService{
 
     @Override
     public List<AsteroidResponse> getNearestAsteroid(String startDate, String endDate) {
-        if (Objects.isNull(startDate) || Objects.isNull(endDate)) {
+        if (isBlankOrEmpty(startDate) || isBlankOrEmpty(endDate)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "startDate and endDate is required");
         }
 
@@ -45,6 +45,10 @@ public class AsteroidServiceImpl implements AsteroidService{
         NeoFeedResponse neoFeed = neoFeedRepository.getNeoFeed(startDate, endDate);
 
         return sortItem(asteroidMapper.mapListToResponses(neoFeed));
+    }
+
+    private boolean isBlankOrEmpty(String value) {
+        return value.isBlank() || value.isEmpty();
     }
     
     private List<AsteroidResponse> sortItem(List<AsteroidResponse> item) {
