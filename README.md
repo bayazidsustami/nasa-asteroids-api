@@ -40,6 +40,39 @@ This Spring Boot application, is a RESTful service designed to utilize NASA's AP
     ```bash
     ./mvnw spring-boot:run
     ```
+   
+## Setup with docker
+If you desire to running this project using docker. you can build an image from `Dockerfile`, here is following step :
+
+1. **Clone the repository:**
+
+    ```bash
+    git https://github.com/bayazidsustami/nasa-asteroids-api.git
+    ```
+
+2. **Navigate to the project directory:**
+
+    ```bash
+    cd nasa-asteroids-api
+    ```
+   
+3. **Build the project:**
+
+    ```bash
+    ./mvnw clean package
+    ```
+
+4. **Build Image**
+
+    ```bash
+    docker build -t {YOUR_APP_IMAGE} .
+    ```
+
+5. **Run the application**
+
+    ```bash
+    docker run -e NASA_API_KEY={YOUR_NASA_API_KEY} -p 8080:8001 {YOUR_APP_IMAGE}
+    ```
 
 ## Configuration
 
