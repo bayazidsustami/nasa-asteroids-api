@@ -70,6 +70,26 @@ class AsteroidControllerTest {
     }
 
     @Test
+    void testRequestInvalidDateRange() throws Exception {
+        mockMvc.perform(
+                get("/api/asteroids")
+                        .queryParam("start_date", "2024-02d-15")
+                        .queryParam("end_date", "2024-0s2-26")
+                        .accept(MediaType.APPLICATION_JSON)
+        ).andExpectAll(
+                status().isBadRequest()
+        ).andExpectAll( result -> {
+            ErrorResponse response = objectMapper.readValue(
+                    result.getResponse().getContentAsString(),
+                    new TypeReference<>() {
+                    }
+            );
+            Assertions.assertNotNull(response);
+            Assertions.assertEquals("expected format date is yyyy-MM-dd", response.getMessage());
+        });
+    }
+
+    @Test
     void testRequestSuccess() throws Exception {
         mockMvc.perform(
                 get("/api/asteroids")
