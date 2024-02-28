@@ -95,11 +95,15 @@ public class AsteroidServiceImpl implements AsteroidService{
     }
 
     private boolean isDateRangeValid(String startDateStr, String endDateStr) {
-        LocalDate startDate = LocalDate.parse(startDateStr, DateTimeFormatter.ISO_LOCAL_DATE);
-        LocalDate endDate = LocalDate.parse(endDateStr, DateTimeFormatter.ISO_LOCAL_DATE);
+        try {
+            LocalDate startDate = LocalDate.parse(startDateStr, DateTimeFormatter.ISO_LOCAL_DATE);
+            LocalDate endDate = LocalDate.parse(endDateStr, DateTimeFormatter.ISO_LOCAL_DATE);
 
-        long daysBetween = ChronoUnit.DAYS.between(startDate, endDate);
-        return daysBetween > 7;
+            long daysBetween = ChronoUnit.DAYS.between(startDate, endDate);
+            return daysBetween > 7;
+        } catch (Exception exception) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "expected format date is yyyy-MM-dd");
+        }
     }
 
     private void sublistOnlyRangeDate(
