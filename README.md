@@ -72,8 +72,8 @@ Once the application is running, you can access the following endpoints:
    
    **Query Param**
 
-   - `start_date` : The start date of the date range (format: YYYY-MM-DD).
-   - `end_date` : The end date of the date range (format: YYYY-MM-DD).
+   - `start_date` : The start date of the date range (format: YYYY-MM-DD)-**Required**.
+   - `end_date` : The end date of the date range (format: YYYY-MM-DD)-**Required**.
 
 - `GET /api/asteroids/{asteroidId}`: Retrieves data about specified asteroid by id.
   
@@ -81,8 +81,16 @@ Once the application is running, you can access the following endpoints:
 
    You can also filter the near-earth object by range date. this query param is optional
    
+   - `start_date` : The start date of the date range (format: YYYY-MM-DD).
+   - `end_date` : The end date of the date range (format: YYYY-MM-DD).
+
+- `GET /api/asteroids/total`: Retrieves all near-Earth objects within a specified date range and x kilometers or more away.
+
+  **Query Param**
+
    - `start_date` : The start date of the date range (format: YYYY-MM-DD)-**Required**.
    - `end_date` : The end date of the date range (format: YYYY-MM-DD)-**Required**.
+   - `distance` : The x kilometers or more away (format: decimal)-**Required**.
 
 Example usage:
 ```bash
