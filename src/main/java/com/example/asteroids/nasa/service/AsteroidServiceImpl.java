@@ -5,6 +5,7 @@ import com.example.asteroids.nasa.client.response.neofeed.NeoFeedResponse;
 import com.example.asteroids.nasa.models.AsteroidResponse;
 import com.example.asteroids.nasa.models.CloseApproachData;
 import com.example.asteroids.nasa.models.DetailAsteroidResponse;
+import com.example.asteroids.nasa.models.TotalAsteroidResponse;
 import com.example.asteroids.nasa.repository.neofeed.NeoFeedRepository;
 import com.example.asteroids.nasa.repository.neolookup.NeoLookupRepository;
 import com.example.asteroids.nasa.service.mapper.AsteroidMapper;
@@ -76,6 +77,24 @@ public class AsteroidServiceImpl implements AsteroidService{
         }
 
         return detailAsteroidResponse;
+    }
+
+    @Override
+    public TotalAsteroidResponse getTotalAsteroidByDistance(String startDate, String endDate, String distance) {
+        if (isBlankOrEmpty(startDate) || isBlankOrEmpty(endDate)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "startDate and endDate is required");
+        }
+
+        if (isDateRangeValid(startDate, endDate)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "maximum range is 7 days");
+        }
+
+        if (distance.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "distance is required");
+        }
+
+        NeoFeedResponse neoFeed = neoFeedRepository.getNeoFeed(startDate, endDate);
+        return asteroidMapper.mapListToResponseByDistance(neoFeed, distance);
     }
 
     private boolean isBlankOrEmpty(String value) {

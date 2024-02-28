@@ -6,6 +6,8 @@ import com.example.asteroids.nasa.client.response.neofeed.EstimatedDiameter;
 import com.example.asteroids.nasa.client.response.neofeed.NeoFeedResponse;
 import com.example.asteroids.nasa.client.response.neolookup.OrbitalDataResponse;
 import com.example.asteroids.nasa.models.*;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -96,4 +98,39 @@ public class AsteroidMapper {
                 .build();
     }
 
+    public TotalAsteroidResponse mapListToResponseByDistance(NeoFeedResponse neoFeedResponse, String distance) {
+        List<AsteroidResponse> asteroidResponseList = new ArrayList<>();
+
+        neoFeedResponse.getNearEarthObjects().forEach((k, items) -> {
+            for (AsteroidObject asteroidObject : items) {
+                EstimatedDiameter estimatedDiameter = asteroidObject.getEstimatedDiameter();
+                CloseApproachDataItem closeApproachDataItem = asteroidObject.getCloseApproachData().get(0);
+                BigDecimal distanceRes = new BigDecimal(closeApproachDataItem.getMissDistance().getKilometers());
+                BigDecimal distanceReq;
+                try {
+                    distanceReq = new BigDecimal(distance);
+                } catch (Exception e) {
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "invalid distance");
+                }
+
+                if (distanceReq.compareTo(distanceRes) < 0) {
+                    AsteroidResponse asteroidRes = AsteroidResponse.builder()
+                            .id(asteroidObject.getId())
+                            .asteroidName(asteroidObject.getName())
+                            .date(k)
+                            .isHazardous(asteroidObject.isPotentiallyHazardousAsteroid())
+                            .estimatedDiameter(setEstimatedDiameter(estimatedDiameter))
+                            .closeApproachData(setCloseApproachData(closeApproachDataItem))
+                            .build();
+
+                    asteroidResponseList.add(asteroidRes);
+                }
+            }
+        });
+
+        return TotalAsteroidResponse.builder()
+                .totalAsteroid(asteroidResponseList.size())
+                .items(asteroidResponseList)
+                .build();
+    }
 }

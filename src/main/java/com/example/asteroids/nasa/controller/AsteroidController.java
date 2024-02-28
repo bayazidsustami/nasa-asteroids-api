@@ -3,6 +3,7 @@ package com.example.asteroids.nasa.controller;
 import com.example.asteroids.nasa.models.ApiResponse;
 import com.example.asteroids.nasa.models.AsteroidResponse;
 import com.example.asteroids.nasa.models.DetailAsteroidResponse;
+import com.example.asteroids.nasa.models.TotalAsteroidResponse;
 import com.example.asteroids.nasa.service.AsteroidService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -52,5 +53,18 @@ public class AsteroidController {
                 .status("OK")
                 .data(detailAsteroid)
                 .build();
+    }
+
+    @GetMapping(
+            path = "/api/asteroids/total",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public TotalAsteroidResponse getTotal(
+            @RequestParam("start_date") String startDate,
+            @RequestParam("end_date") String endDate,
+            @RequestParam(value = "distance") String distance
+    ) {
+        TotalAsteroidResponse totalAsteroidByDistance = asteroidService.getTotalAsteroidByDistance(startDate, endDate, distance);
+        return totalAsteroidByDistance;
     }
 }
