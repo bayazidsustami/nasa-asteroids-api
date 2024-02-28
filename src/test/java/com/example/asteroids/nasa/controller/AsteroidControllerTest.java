@@ -1,9 +1,6 @@
 package com.example.asteroids.nasa.controller;
 
-import com.example.asteroids.nasa.models.ApiResponse;
-import com.example.asteroids.nasa.models.AsteroidResponse;
-import com.example.asteroids.nasa.models.DetailAsteroidResponse;
-import com.example.asteroids.nasa.models.ErrorResponse;
+import com.example.asteroids.nasa.models.*;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Assertions;
@@ -170,6 +167,48 @@ class AsteroidControllerTest {
             Assertions.assertNotNull(response.getData());
             Assertions.assertEquals("OK", response.getStatus());
             Assertions.assertEquals(2, response.getData().getCloseApproachDataList().size());
+        });
+    }
+
+    @Test
+    void testTotalAsteroidResponseWithEmptyDistance() throws Exception {
+        mockMvc.perform(
+                get("/api/asteroids/total")
+                        .queryParam("start_date", "2024-02-15")
+                        .queryParam("end_date", "2024-02-22")
+                        .queryParam("distance", "")
+                        .accept(MediaType.APPLICATION_JSON)
+        ).andExpectAll(
+                status().isBadRequest()
+        ).andExpectAll( result -> {
+            ErrorResponse response = objectMapper.readValue(
+                    result.getResponse().getContentAsString(),
+                    new TypeReference<>() {
+                    }
+            );
+            Assertions.assertNotNull(response);
+            Assertions.assertEquals("distance is required", response.getMessage());
+        });
+    }
+
+    @Test
+    void testTotalAsteroidResponseWithDistance() throws Exception {
+        mockMvc.perform(
+                get("/api/asteroids/total")
+                        .queryParam("start_date", "2024-02-20")
+                        .queryParam("end_date", "2024-02-26")
+                        .queryParam("distance", "777609.144828307")
+                        .accept(MediaType.APPLICATION_JSON)
+        ).andExpectAll(
+                status().isOk()
+        ).andExpectAll( result -> {
+            TotalAsteroidResponse response = objectMapper.readValue(
+                    result.getResponse().getContentAsString(),
+                    new TypeReference<>() {
+                    }
+            );
+            Assertions.assertNotNull(response);
+            Assertions.assertFalse(response.getItems().isEmpty());
         });
     }
 }
