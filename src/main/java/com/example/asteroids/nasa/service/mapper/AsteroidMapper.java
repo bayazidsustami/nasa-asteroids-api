@@ -88,9 +88,11 @@ public class AsteroidMapper {
 
     private CloseApproachData setCloseApproachData(CloseApproachDataItem dataItem) {
         return CloseApproachData.builder()
-                .relativeVelocity(new BigDecimal(dataItem.getRelativeVelocity().getKilometersPerHour()))
-                .distanceToEarth(new BigDecimal(dataItem.getMissDistance().getKilometers()))
+                .relativeVelocity(dataItem.getRelativeVelocity().getKilometersPerHour() + " Km/H")
+                .distanceToEarth(dataItem.getMissDistance().getKilometers() + " Km")
+                .distance(new BigDecimal(dataItem.getMissDistance().getKilometers()))
                 .epochDate(dataItem.getEpochDateCloseApproach())
+                .dateTime(dataItem.getCloseApproachDateFull())
                 .build();
     }
 

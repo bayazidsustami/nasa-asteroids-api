@@ -1,5 +1,6 @@
 package com.example.asteroids.nasa.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -14,12 +15,18 @@ import java.math.BigDecimal;
 @Builder
 public class CloseApproachData {
 
-    @JsonProperty("epoch_date")
+    @JsonIgnore
     private long epochDate;
 
+    @JsonProperty("date_time")
+    private String dateTime;
+
     @JsonProperty("relative_velocity")
-    private BigDecimal relativeVelocity;
+    private String relativeVelocity;
 
     @JsonProperty("distance_to_earth")
-    private BigDecimal distanceToEarth;
+    private String distanceToEarth;
+
+    @JsonIgnore
+    private BigDecimal distance;
 }
