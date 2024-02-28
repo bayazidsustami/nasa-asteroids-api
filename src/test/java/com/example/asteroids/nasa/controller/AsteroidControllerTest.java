@@ -4,13 +4,16 @@ import com.example.asteroids.nasa.models.*;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.Base64;
 import java.util.List;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -26,12 +29,26 @@ class AsteroidControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Value("${spring.security.user.name}")
+    private String username;
+
+    @Value("${spring.security.user.password}")
+    private String password;
+
+    private String encodedAuth;
+
+    @BeforeEach
+    void setUp() {
+        encodedAuth = "Basic " + Base64.getEncoder().encodeToString((username + ":" + password).getBytes());
+    }
+
     @Test
     void testRequestEmptyDateRange() throws Exception {
         mockMvc.perform(
                 get("/api/asteroids")
                         .queryParam("start_date", "")
                         .queryParam("end_date", "")
+                        .header("Authorization", encodedAuth)
                         .accept(MediaType.APPLICATION_JSON)
         ).andExpectAll(
                 status().isBadRequest()
@@ -52,6 +69,7 @@ class AsteroidControllerTest {
                 get("/api/asteroids")
                         .queryParam("start_date", "2024-02-15")
                         .queryParam("end_date", "2024-02-26")
+                        .header("Authorization", encodedAuth)
                         .accept(MediaType.APPLICATION_JSON)
         ).andExpectAll(
                 status().isBadRequest()
@@ -72,6 +90,7 @@ class AsteroidControllerTest {
                 get("/api/asteroids")
                         .queryParam("start_date", "2024-02d-15")
                         .queryParam("end_date", "2024-0s2-26")
+                        .header("Authorization", encodedAuth)
                         .accept(MediaType.APPLICATION_JSON)
         ).andExpectAll(
                 status().isBadRequest()
@@ -92,6 +111,7 @@ class AsteroidControllerTest {
                 get("/api/asteroids")
                         .queryParam("start_date", "2024-02-15")
                         .queryParam("end_date", "2024-02-22")
+                        .header("Authorization", encodedAuth)
                         .accept(MediaType.APPLICATION_JSON)
         ).andExpectAll(
                 status().isOk()
@@ -114,6 +134,7 @@ class AsteroidControllerTest {
                 get("/api/asteroids/54427165")
                         .queryParam("start_date", "")
                         .queryParam("end_date", "")
+                        .header("Authorization", encodedAuth)
                         .accept(MediaType.APPLICATION_JSON)
         ).andExpectAll(
                 status().isOk()
@@ -135,6 +156,7 @@ class AsteroidControllerTest {
                 get("/api/asteroids/54427165")
                         .queryParam("start_date", "2024-02-15")
                         .queryParam("end_date", "2024-02-27")
+                        .header("Authorization", encodedAuth)
                         .accept(MediaType.APPLICATION_JSON)
         ).andExpectAll(
                 status().isBadRequest()
@@ -155,6 +177,7 @@ class AsteroidControllerTest {
                 get("/api/asteroids/54427165")
                         .queryParam("start_date", "2024-02-15")
                         .queryParam("end_date", "2024-02-22")
+                        .header("Authorization", encodedAuth)
                         .accept(MediaType.APPLICATION_JSON)
         ).andExpectAll(
                 status().isOk()
@@ -177,6 +200,7 @@ class AsteroidControllerTest {
                         .queryParam("start_date", "2024-02-15")
                         .queryParam("end_date", "2024-02-22")
                         .queryParam("distance", "")
+                        .header("Authorization", encodedAuth)
                         .accept(MediaType.APPLICATION_JSON)
         ).andExpectAll(
                 status().isBadRequest()
@@ -198,6 +222,7 @@ class AsteroidControllerTest {
                         .queryParam("start_date", "2024-02-20")
                         .queryParam("end_date", "2024-02-26")
                         .queryParam("distance", "777609.144828307")
+                        .header("Authorization", encodedAuth)
                         .accept(MediaType.APPLICATION_JSON)
         ).andExpectAll(
                 status().isOk()
@@ -211,4 +236,60 @@ class AsteroidControllerTest {
             Assertions.assertFalse(response.getItems().isEmpty());
         });
     }
+
+    @Test
+    void testRequestNoAuth() throws Exception {
+        mockMvc.perform(
+                get("/api/asteroids")
+                        .queryParam("start_date", "2024-02-15")
+                        .queryParam("end_date", "2024-02-26")
+                        .accept(MediaType.APPLICATION_JSON)
+        ).andExpectAll(
+                status().isUnauthorized()
+        ).andExpectAll( result -> {
+            ErrorResponse response = objectMapper.readValue(
+                    result.getResponse().getContentAsString(),
+                    new TypeReference<>() {
+                    }
+            );
+            Assertions.assertNotNull(response);
+            Assertions.assertEquals("Full authentication is required to access this resource", response.getMessage());
+        });
+
+        mockMvc.perform(
+                get("/api/asteroids/54427165")
+                        .queryParam("start_date", "2024-02-15")
+                        .queryParam("end_date", "2024-02-26")
+                        .accept(MediaType.APPLICATION_JSON)
+        ).andExpectAll(
+                status().isUnauthorized()
+        ).andExpectAll( result -> {
+            ErrorResponse response = objectMapper.readValue(
+                    result.getResponse().getContentAsString(),
+                    new TypeReference<>() {
+                    }
+            );
+            Assertions.assertNotNull(response);
+            Assertions.assertEquals("Full authentication is required to access this resource", response.getMessage());
+        });
+
+        mockMvc.perform(
+                get("/api/asteroids/total")
+                        .queryParam("start_date", "2024-02-20")
+                        .queryParam("end_date", "2024-02-26")
+                        .queryParam("distance", "777609.144828307")
+                        .accept(MediaType.APPLICATION_JSON)
+        ).andExpectAll(
+                status().isUnauthorized()
+        ).andExpectAll( result -> {
+            ErrorResponse response = objectMapper.readValue(
+                    result.getResponse().getContentAsString(),
+                    new TypeReference<>() {
+                    }
+            );
+            Assertions.assertNotNull(response);
+            Assertions.assertEquals("Full authentication is required to access this resource", response.getMessage());
+        });
+    }
+
 }
