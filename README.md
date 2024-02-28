@@ -65,6 +65,13 @@ You can also can change server port(default : 8001) by configure it in `applicat
 server.port=8000
 ```
 
+### Auth
+Ensure you update the authentication settings in the `application.properties` file if you wish to change the default basic auth.
+```properties
+spring.security.user.name={your_username}
+spring.security.user.password={your_password}
+```
+
 ## Usage
 Once the application is running, you can access the following endpoints:
 
@@ -94,7 +101,7 @@ Once the application is running, you can access the following endpoints:
 
 Example usage:
 ```bash
-curl http://localhost:8080/api/asteroids?start_date=2024-02-28&end_date=2024-03-05
+curl u {username}:{password} http://localhost:8080/api/asteroids?start_date=2024-02-28&end_date=2024-03-05
 ```
 ## Contributing
 Contributions are welcome! If you have any suggestions, improvements, or feature requests, please open an issue or create a pull request.
