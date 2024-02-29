@@ -9,6 +9,10 @@ This Spring Boot application, is a RESTful service designed to utilize NASA's AP
 - Lombok
 - Spring-Boot 3.2.3
 
+## Application Diagram
+
+![Application Diagram](/img/diagram.webp)
+
 ## Setup
 
 1. **Clone the repository:**
